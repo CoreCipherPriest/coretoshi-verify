@@ -407,7 +407,7 @@
         document.getElementById('discordCmdText').value = cmd;
         document.getElementById('discordCmd').style.display = 'block';
 
-        showStatus('✅ Signed successfully with ' + account + '\n\nNow copy the signature above and run /submit in Discord.', 'success');
+        showStatus('✅ Signed successfully with ' + account + '\n\nNow copy the signature below and run /submit in Discord.', 'success');
       } catch (err) {
         if (err.code === 4001) {
           showStatus('❌ You rejected the signature request. Click "Sign" in your wallet to continue.', 'error');
