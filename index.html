@@ -4,8 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coretoshi — Wallet Verification</title>
+
+  <!-- 🔒 Clickjacking protection -->
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+
+  <!-- 🔒 Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+             script-src 'unsafe-inline';
+             style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+             font-src https://fonts.gstatic.com;
+             connect-src 'none';
+             img-src 'none';
+             frame-ancestors 'none';" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -41,11 +56,7 @@
         repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
     }
 
-    /* ── Header ── */
-    header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
+    header { text-align: center; margin-bottom: 48px; }
 
     .logo-ring {
       width: 72px; height: 72px;
@@ -66,12 +77,7 @@
     @keyframes spin-slow { to { transform: rotate(360deg); } }
     .logo-ring svg { animation: spin-slow 12s linear infinite reverse; }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #fff;
-    }
+    h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; color: #fff; }
     h1 span { color: var(--orange); }
 
     .subtitle {
@@ -83,7 +89,6 @@
       text-transform: uppercase;
     }
 
-    /* ── Card ── */
     .card {
       width: 100%;
       max-width: 560px;
@@ -110,12 +115,7 @@
       margin-bottom: 16px;
     }
 
-    h2 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 20px;
-    }
+    h2 { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 20px; }
 
     label {
       display: block;
@@ -141,9 +141,7 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    textarea:focus, input[type="text"]:focus {
-      border-color: var(--orange);
-    }
+    textarea:focus, input[type="text"]:focus { border-color: var(--orange); }
     textarea { min-height: 160px; }
 
     .btn {
@@ -165,14 +163,8 @@
     }
     .btn:active { transform: scale(0.99); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .btn-primary {
-      background: var(--orange);
-      color: #000;
-      font-weight: 700;
-    }
+    .btn-primary { background: var(--orange); color: #000; font-weight: 700; }
     .btn-primary:hover:not(:disabled) { background: #e8991a; }
-
     .btn-copy {
       background: transparent;
       color: var(--orange);
@@ -182,7 +174,6 @@
     }
     .btn-copy:hover { background: rgba(245,166,35,0.08); }
 
-    /* ── Divider ── */
     .divider {
       display: flex;
       align-items: center;
@@ -193,14 +184,8 @@
       font-size: 0.65rem;
       letter-spacing: 2px;
     }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-    /* ── Status box ── */
     .status {
       display: none;
       margin-top: 20px;
@@ -210,28 +195,17 @@
       font-size: 0.78rem;
       line-height: 1.6;
       word-break: break-all;
+      white-space: pre-wrap;
     }
     .status.success { display: block; background: rgba(0,204,102,0.08); border: 1px solid rgba(0,204,102,0.3); color: var(--green); }
     .status.error   { display: block; background: rgba(255,68,68,0.08);  border: 1px solid rgba(255,68,68,0.3);  color: var(--red);   }
     .status.info    { display: block; background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.3); color: var(--orange);}
 
-    .sig-output {
-      display: none;
-      margin-top: 20px;
-    }
+    .sig-output { display: none; margin-top: 20px; }
     .sig-output label { color: var(--green); }
-    .sig-output textarea {
-      border-color: rgba(0,204,102,0.3);
-      color: var(--green);
-    }
+    .sig-output textarea { border-color: rgba(0,204,102,0.3); color: var(--green); }
 
-    /* ── Info pills ── */
-    .pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 28px;
-    }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
     .pill {
       font-family: var(--mono);
       font-size: 0.65rem;
@@ -244,7 +218,6 @@
     }
     .pill span { color: var(--orange); }
 
-    /* ── Footer ── */
     footer {
       margin-top: 40px;
       font-family: var(--mono);
@@ -253,7 +226,6 @@
       text-align: center;
       letter-spacing: 1px;
     }
-    footer a { color: var(--muted); text-decoration: underline; }
 
     .notice {
       max-width: 560px;
@@ -268,6 +240,20 @@
       line-height: 1.7;
     }
     .notice strong { color: var(--text); }
+
+    .phishing-warn {
+      max-width: 560px;
+      width: 100%;
+      margin-bottom: 20px;
+      padding: 10px 16px;
+      border: 1px solid rgba(245,166,35,0.4);
+      border-radius: 2px;
+      background: rgba(245,166,35,0.06);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--orange);
+      line-height: 1.7;
+    }
   </style>
 </head>
 <body>
@@ -283,12 +269,17 @@
     <p class="subtitle">NFT Verification — Core Blockchain</p>
   </header>
 
+  <div class="phishing-warn">
+    &#9888; <strong>Only use this page from the official link pinned in #coretoshi-verify.</strong>
+    Never enter a verification message sent to you via DM. The team will never DM you first.
+  </div>
+
   <div class="card">
     <p class="step-label">Step 1 of 2</p>
     <h2>Paste the message from the Discord bot</h2>
 
     <label for="msgInput">Message to sign</label>
-    <textarea id="msgInput" placeholder="Coretoshi Verification&#10;Discord User ID: ...&#10;Wallet: 0x...&#10;Nonce: 0x..."></textarea>
+    <textarea id="msgInput" placeholder="Coretoshi Verification&#10;Discord User ID: ...&#10;Wallet: 0x...&#10;Nonce: 0x...&#10;&#10;Signing this message proves you own this wallet.&#10;This request expires in 10 minutes."></textarea>
 
     <button class="btn btn-primary" id="signBtn" onclick="signMessage()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -325,7 +316,7 @@
   </div>
 
   <div class="notice">
-    <strong>🔒 Safe to use.</strong> Signing a message is read-only cryptography — it cannot transfer tokens,
+    <strong>&#128274; Safe to use.</strong> Signing a message is read-only cryptography &mdash; it cannot transfer tokens,
     approve contracts, or interact with the blockchain in any way. Your private key never leaves your wallet.
     This page has no backend and makes no network requests.
   </div>
@@ -336,9 +327,23 @@
   </footer>
 
   <script>
+    // 🔒 Strict message format validation — matches the exact 6-line structure
+    // the Discord bot generates, including the trailing explanation lines.
+    const MESSAGE_PATTERN = /^Coretoshi Verification\nDiscord User ID: \d+\nWallet: 0x[0-9a-fA-F]{40}\nNonce: 0x[0-9a-fA-F]+\n\nSigning this message proves you own this wallet\.\nThis request expires in 10 minutes\.$/;
+
+    // 🔒 Sanitize error messages before display
+    function sanitizeError(msg) {
+      if (typeof msg !== 'string') return 'Unknown error';
+      return msg.replace(/[<>]/g, '').substring(0, 200);
+    }
+
     async function getProvider() {
       if (typeof window.ethereum === 'undefined') {
         throw new Error('No wallet detected. Please install MetaMask or Rabby.');
+      }
+      // 🔒 Basic provider sanity check
+      if (typeof window.ethereum.request !== 'function') {
+        throw new Error('Wallet provider appears invalid. Please use MetaMask or Rabby.');
       }
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       return window.ethereum;
@@ -346,17 +351,24 @@
 
     function showStatus(msg, type) {
       const el = document.getElementById('status');
-      el.textContent = msg;
+      el.textContent = msg; // textContent is XSS-safe
       el.className = 'status ' + type;
     }
 
     async function signMessage() {
       const message = document.getElementById('msgInput').value.trim();
+
       if (!message) {
         return showStatus('⚠ Paste the message from the Discord bot first.', 'error');
       }
-      if (!message.startsWith('Coretoshi Verification')) {
-        return showStatus('⚠ This doesn\'t look like a Coretoshi verification message. Make sure you pasted it correctly.', 'error');
+
+      // 🔒 Strict format check — must match full 6-line bot message exactly
+      if (!MESSAGE_PATTERN.test(message)) {
+        return showStatus(
+          '⚠ This message does not match the expected Coretoshi verification format.\n\n' +
+          'Make sure you copied the entire message the bot gave you, including all lines.',
+          'error'
+        );
       }
 
       const btn = document.getElementById('signBtn');
@@ -369,7 +381,11 @@
         const accounts = await eth.request({ method: 'eth_accounts' });
         const account = accounts[0];
 
-        showStatus(`Connected: ${account}\nWaiting for you to sign in your wallet...`, 'info');
+        if (!account || !/^0x[0-9a-fA-F]{40}$/.test(account)) {
+          throw new Error('Could not retrieve a valid wallet address.');
+        }
+
+        showStatus('Connected: ' + account + '\nWaiting for you to sign in your wallet...', 'info');
 
         const msgHex = '0x' + Array.from(new TextEncoder().encode(message))
           .map(b => b.toString(16).padStart(2, '0')).join('');
@@ -379,32 +395,63 @@
           params: [msgHex, account],
         });
 
+        // 🔒 Sanity-check the returned signature shape
+        if (!signature || !/^0x[0-9a-fA-F]{130}$/.test(signature)) {
+          throw new Error('Received an unexpected signature format from wallet.');
+        }
+
         document.getElementById('sigText').value = signature;
         document.getElementById('sigOutput').style.display = 'block';
 
-        const cmd = `/submit signature: ${signature}`;
+        const cmd = '/submit signature: ' + signature;
         document.getElementById('discordCmdText').value = cmd;
         document.getElementById('discordCmd').style.display = 'block';
 
-        showStatus(`✅ Signed successfully with ${account}\n\nNow copy the signature above and run /submit in Discord.`, 'success');
+        showStatus('✅ Signed successfully with ' + account + '\n\nNow copy the signature above and run /submit in Discord.', 'success');
       } catch (err) {
         if (err.code === 4001) {
           showStatus('❌ You rejected the signature request. Click "Sign" in your wallet to continue.', 'error');
         } else {
-          showStatus('❌ ' + (err.message || 'Unknown error'), 'error');
+          showStatus('❌ ' + sanitizeError(err.message), 'error');
         }
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Connect Wallet & Sign`;
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Connect Wallet & Sign';
       }
     }
 
     function copySignature() {
       const sig = document.getElementById('sigText').value;
-      navigator.clipboard.writeText(sig).then(() => {
+
+      // 🔒 Clipboard error handling with fallback
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(sig)
+          .then(() => {
+            document.getElementById('copyLabel').textContent = 'Copied!';
+            setTimeout(() => document.getElementById('copyLabel').textContent = 'Copy Signature', 2000);
+          })
+          .catch(() => fallbackCopy(sig));
+      } else {
+        fallbackCopy(sig);
+      }
+    }
+
+    function fallbackCopy(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
         document.getElementById('copyLabel').textContent = 'Copied!';
         setTimeout(() => document.getElementById('copyLabel').textContent = 'Copy Signature', 2000);
-      });
+      } catch {
+        document.getElementById('copyLabel').textContent = 'Copy failed — select manually';
+      }
     }
   </script>
 </body>
