@@ -4,8 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coretoshi — Wallet Verification</title>
+
+  <!-- 🔒 FIX #1: Clickjacking protection -->
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+
+  <!-- 🔒 FIX #2: Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+             script-src 'unsafe-inline';
+             style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+             font-src https://fonts.gstatic.com;
+             connect-src 'none';
+             img-src 'none';
+             frame-ancestors 'none';" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -268,6 +283,21 @@
       line-height: 1.7;
     }
     .notice strong { color: var(--text); }
+
+    /* 🔒 FIX #3: Anti-phishing banner */
+    .phishing-warn {
+      max-width: 560px;
+      width: 100%;
+      margin-bottom: 20px;
+      padding: 10px 16px;
+      border: 1px solid rgba(245,166,35,0.4);
+      border-radius: 2px;
+      background: rgba(245,166,35,0.06);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--orange);
+      line-height: 1.7;
+    }
   </style>
 </head>
 <body>
@@ -282,6 +312,12 @@
     <h1>Core<span>toshi</span></h1>
     <p class="subtitle">NFT Verification — Core Blockchain</p>
   </header>
+
+  <!-- 🔒 FIX #3: Phishing awareness banner -->
+  <div class="phishing-warn">
+    ⚠ <strong>Only use this page from the official link pinned in #coretoshi-verify.</strong>
+    Never enter a verification message sent to you via DM. The team will never DM you first.
+  </div>
 
   <div class="card">
     <p class="step-label">Step 1 of 2</p>
@@ -336,9 +372,28 @@
   </footer>
 
   <script>
+    // ─────────────────────────────────────────────
+    // 🔒 FIX #4: Strict message format validation
+    // Ensures the pasted message matches the exact
+    // structure the Discord bot produces.
+    // ─────────────────────────────────────────────
+    const MESSAGE_PATTERN = /^Coretoshi Verification\nDiscord User ID: \d+\nWallet: 0x[0-9a-fA-F]{40}\nNonce: 0x[0-9a-fA-F]+$/;
+
+    // 🔒 FIX #5: Sanitize error messages before display —
+    // truncate and strip any HTML-like content defensively.
+    function sanitizeError(msg) {
+      if (typeof msg !== 'string') return 'Unknown error';
+      return msg.replace(/[<>]/g, '').substring(0, 200);
+    }
+
     async function getProvider() {
       if (typeof window.ethereum === 'undefined') {
         throw new Error('No wallet detected. Please install MetaMask or Rabby.');
+      }
+      // 🔒 FIX #6: Basic provider sanity check — ensure it behaves
+      // like a real EIP-1193 provider before trusting it.
+      if (typeof window.ethereum.request !== 'function') {
+        throw new Error('Wallet provider appears invalid. Please use MetaMask or Rabby.');
       }
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       return window.ethereum;
@@ -346,17 +401,29 @@
 
     function showStatus(msg, type) {
       const el = document.getElementById('status');
+      // Safe: textContent never interprets HTML — XSS-safe
       el.textContent = msg;
       el.className = 'status ' + type;
     }
 
     async function signMessage() {
       const message = document.getElementById('msgInput').value.trim();
+
       if (!message) {
         return showStatus('⚠ Paste the message from the Discord bot first.', 'error');
       }
-      if (!message.startsWith('Coretoshi Verification')) {
-        return showStatus('⚠ This doesn\'t look like a Coretoshi verification message. Make sure you pasted it correctly.', 'error');
+
+      // 🔒 FIX #4 applied: strict format check instead of weak startsWith
+      if (!MESSAGE_PATTERN.test(message)) {
+        return showStatus(
+          '⚠ This message does not match the expected Coretoshi verification format.\n\n' +
+          'Expected format:\n' +
+          'Coretoshi Verification\n' +
+          'Discord User ID: <numbers>\n' +
+          'Wallet: 0x<40 hex chars>\n' +
+          'Nonce: 0x<hex>',
+          'error'
+        );
       }
 
       const btn = document.getElementById('signBtn');
@@ -369,6 +436,10 @@
         const accounts = await eth.request({ method: 'eth_accounts' });
         const account = accounts[0];
 
+        if (!account || !/^0x[0-9a-fA-F]{40}$/.test(account)) {
+          throw new Error('Could not retrieve a valid wallet address.');
+        }
+
         showStatus(`Connected: ${account}\nWaiting for you to sign in your wallet...`, 'info');
 
         const msgHex = '0x' + Array.from(new TextEncoder().encode(message))
@@ -378,6 +449,11 @@
           method: 'personal_sign',
           params: [msgHex, account],
         });
+
+        // 🔒 Basic sanity-check the returned signature shape
+        if (!signature || !/^0x[0-9a-fA-F]{130}$/.test(signature)) {
+          throw new Error('Received an unexpected signature format from wallet.');
+        }
 
         document.getElementById('sigText').value = signature;
         document.getElementById('sigOutput').style.display = 'block';
@@ -391,7 +467,8 @@
         if (err.code === 4001) {
           showStatus('❌ You rejected the signature request. Click "Sign" in your wallet to continue.', 'error');
         } else {
-          showStatus('❌ ' + (err.message || 'Unknown error'), 'error');
+          // 🔒 FIX #5 applied: sanitize error message before display
+          showStatus('❌ ' + sanitizeError(err.message), 'error');
         }
       } finally {
         btn.disabled = false;
@@ -401,10 +478,36 @@
 
     function copySignature() {
       const sig = document.getElementById('sigText').value;
-      navigator.clipboard.writeText(sig).then(() => {
+
+      // 🔒 FIX #7: Clipboard error handling with fallback
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(sig)
+          .then(() => {
+            document.getElementById('copyLabel').textContent = 'Copied!';
+            setTimeout(() => document.getElementById('copyLabel').textContent = 'Copy Signature', 2000);
+          })
+          .catch(() => fallbackCopy(sig));
+      } else {
+        fallbackCopy(sig);
+      }
+    }
+
+    function fallbackCopy(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
         document.getElementById('copyLabel').textContent = 'Copied!';
         setTimeout(() => document.getElementById('copyLabel').textContent = 'Copy Signature', 2000);
-      });
+      } catch {
+        document.getElementById('copyLabel').textContent = 'Copy failed — select manually';
+      }
     }
   </script>
 </body>
